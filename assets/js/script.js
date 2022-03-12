@@ -16,13 +16,14 @@ var timerCount;
 var isWin = false;
 var winCount = 0;
 var loseCount = 0;
+var numBlanks = 0;
 
 //array of words for the user to guess
 var words = [
   "JavaScript",
   "just in time",
-  "first class functions",
-  "non browser environment",
+  "first-class functions",
+  "non-browser environment",
   "node",
   "apache",
   "adobe",
@@ -34,13 +35,13 @@ var words = [
   "language",
   "scripting",
   "web",
-  "multi paradigm",
-  "single threated",
+  "multi-paradigm",
+  "single-threated",
   "dynamic",
-  "object oriented",
+  "object-oriented",
   "imperative",
   "declarative",
-  "funcational",
+  "functional",
   "apis",
   "DOM",
   "ECMAScript",
@@ -68,16 +69,86 @@ var words = [
   "declarations",
   "console",
   "browser",
+  "modulus",
 ];
+//declare variables used by renderBlanks and checkLetters
+var lettersInChosenWord = [];
+var blanksArray = [];
+
+//display the blanks before user guesses words
+function renderBlanks() {
+  //randomly choose a word from words array
+  chosenWord = words[Math.floor(Math.random() * words.length)];
+  //text
+  console.log(chosenWord);
+  //split up the chosen word into its characters
+  lettersInChosenWord = chosenWord.split("");
+  numBlanks = lettersInChosenWord.length;
+  blanksLetters = [];
+  //loop to push blanks to blanksLetters array
+  for (var i = 0; i < numBlanks; i++) {
+    blanksLetters.push("_");
+  }
+  //convert blanksLetters array into a string and render it on the screen
+  wordBlank.textContent = blanksLetters.join(" ");
+}
+
+function checkWin() {
+  //if the word = blanksLetters array when converted to string, set isWin to true
+  if (chosenWord === blanksLetters.join("")) {
+    //isWin value is used in the timer function to test if win condition is met
+    isWin = true;
+  }
+}
+
+//check to see if user-entered letters match letters in randomly chosenWord
+function checkLetters(letter) {
+  var letterInWord = false;
+  for (var i = 0; i < numBlanks; i++) {
+    if (chosenWord[i] === letter.toLowerCase()) {
+      letterInWord = true;
+    }
+  }
+  if (letterInWord) {
+    for (var j = 0; j < numBlanks; j++) {
+      if (chosenWord[j] === letter) {
+        blanksLetters[j] = letter.toLowerCase();
+      }
+    }
+    wordBlank.textContent = blanksLetters.join(" ");
+  }
+}
+
+//attach event listener that listens for keydown event
+document.addEventListener("keydown", function (event) {
+  //if the count is zero, exit function
+  if (timerCount === 0) {
+    return;
+  }
+  //Convert all keys to lower case
+  var key = event.key.toLowerCase();
+  var alphaNumericCharacters = "abcdefghijklmnopqrstuvwxyz0123456789- ".split(
+    ""
+  );
+  //Test if key pushed is alphanumeric
+  if (alphaNumericCharacters.includes(key)) {
+    var letterGuessed = event.key;
+    checkLetters(letterGuessed);
+    checkWin();
+  }
+});
 
 //function startGame
 function startGame() {
+  //initialise isWin back to false each time Start button clicked
+  isWin = false;
   //when we start the game, we want to set the timerCount to 10
   timerCount = 10;
   //initialise timer text to = timerCount variable
   timerElement.textContent = timerCount;
   //call timer countdown function
   startTimer();
+  renderBlanks();
 }
 
 //when word is completed, call winGame
@@ -156,7 +227,6 @@ function startTimer() {
         winGame();
       }
     }
-
     //when timerCount is zero, stop using clearInterval
     if (timerCount === 0) {
       clearInterval(timer);
@@ -173,4 +243,6 @@ function init() {
   getLosses();
 }
 
+//call init when loading the page
+//init is in the ROOT, so will get called by the page
 init();
