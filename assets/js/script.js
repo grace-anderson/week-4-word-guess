@@ -10,7 +10,10 @@ var timerElement = document.querySelector(".timer-count");
 //selects class start-button
 var startButton = document.querySelector(".start-button");
 
+var chosenWord = "";
+
 //objects to hold states
+var timer;
 var timerCount;
 // variable for if player wins - initialise as false (i.e. player has not won. Set to true when player wins)
 var isWin = false;
@@ -20,10 +23,7 @@ var numBlanks = 0;
 
 //array of words for the user to guess
 var words = [
-  "JavaScript",
-  "just in time",
-  "first-class functions",
-  "non-browser environment",
+  "javascript",
   "node",
   "apache",
   "adobe",
@@ -35,33 +35,26 @@ var words = [
   "language",
   "scripting",
   "web",
-  "multi-paradigm",
-  "single-threated",
   "dynamic",
-  "object-oriented",
   "imperative",
   "declarative",
   "functional",
-  "apis",
-  "DOM",
-  "ECMAScript",
+  "api",
   "features",
-  "MDN",
   "asynchronous",
-  "client-side",
+  "client",
   "frameworks",
-  "data structures",
+  "data",
   "equality",
   "closures",
   "inheritance",
   "strict",
-  "arrays",
+  "array",
   "memory",
   "events",
   "objects",
   "loops",
   "boolean",
-  "JSON",
   "math",
   "expressions",
   "operators",
@@ -70,6 +63,9 @@ var words = [
   "console",
   "browser",
   "modulus",
+  "variable",
+  "string",
+  "object",
 ];
 //declare variables used by renderBlanks and checkLetters
 var lettersInChosenWord = [];
@@ -79,8 +75,8 @@ var blanksArray = [];
 function renderBlanks() {
   //randomly choose a word from words array
   chosenWord = words[Math.floor(Math.random() * words.length)];
-  //text
-  console.log(chosenWord);
+  // //test
+  // console.log(chosenWord);
   //split up the chosen word into its characters
   lettersInChosenWord = chosenWord.split("");
   numBlanks = lettersInChosenWord.length;
@@ -105,14 +101,14 @@ function checkWin() {
 function checkLetters(letter) {
   var letterInWord = false;
   for (var i = 0; i < numBlanks; i++) {
-    if (chosenWord[i] === letter.toLowerCase()) {
+    if (chosenWord[i] === letter) {
       letterInWord = true;
     }
   }
   if (letterInWord) {
     for (var j = 0; j < numBlanks; j++) {
       if (chosenWord[j] === letter) {
-        blanksLetters[j] = letter.toLowerCase();
+        blanksLetters[j] = letter;
       }
     }
     wordBlank.textContent = blanksLetters.join(" ");
@@ -127,7 +123,7 @@ document.addEventListener("keydown", function (event) {
   }
   //Convert all keys to lower case
   var key = event.key.toLowerCase();
-  var alphaNumericCharacters = "abcdefghijklmnopqrstuvwxyz0123456789- ".split(
+  var alphaNumericCharacters = "abcdefghijklmnopqrstuvwxyz0123456789 ".split(
     ""
   );
   //Test if key pushed is alphanumeric
@@ -143,9 +139,10 @@ function startGame() {
   //initialise isWin back to false each time Start button clicked
   isWin = false;
   //when we start the game, we want to set the timerCount to 10
-  timerCount = 10;
+  timerCount = 12;
   //initialise timer text to = timerCount variable
   timerElement.textContent = timerCount;
+  startButton.disabled = false;
   //call timer countdown function
   startTimer();
   renderBlanks();
@@ -200,6 +197,7 @@ function loseGame() {
   wordBlank.textContent = "YOU LOST :-( ";
   //increment loseCount by 1
   loseCount++;
+  startButton.disabled = false;
   setLosses();
 }
 
@@ -212,16 +210,16 @@ function setLosses() {
 
 function startTimer() {
   //setInterval function: first argument is function; second argument is number of seconds between calling the function
-  var timer = setInterval(function () {
+  timer = setInterval(function () {
     //increment countdown
     timerCount--;
     //display timer count
     timerElement.textContent = timerCount;
 
     //if the user has wone, call winGame()
-    if (timerCount > 0) {
+    if (timerCount >= 0) {
       //if user has won
-      if (isWin) {
+      if (isWin && timerCount > 0) {
         //clear the counter
         clearInterval(timer);
         winGame();
@@ -246,3 +244,17 @@ function init() {
 //call init when loading the page
 //init is in the ROOT, so will get called by the page
 init();
+
+//Add reset button
+var resetButton = document.querySelector(".reset-button");
+
+function resetGame() {
+  // Resets win and loss counts
+  winCount = 0;
+  loseCount = 0;
+  // Renders win and loss counts and sets them into client storage
+  setWins();
+  setLosses();
+}
+// Attaches event listener to button
+resetButton.addEventListener("click", resetGame);
